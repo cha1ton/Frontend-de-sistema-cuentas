@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Facturas = () => {
@@ -10,6 +11,7 @@ const Facturas = () => {
     proveedor: "",
     estado: "",
   });
+  const navigate = useNavigate(); // Hook para redirigir
 
   // Fetch de facturas, clientes y proveedores
   useEffect(() => {
@@ -55,9 +57,36 @@ const Facturas = () => {
     );
   });
 
+  // Eliminar factura
+  const handleDelete = (id) => {
+    if (window.confirm("¿Estás seguro de que deseas eliminar esta factura?")) {
+      axios
+        .delete(`http://127.0.0.1:8000/api/facturas/${id}/`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        })
+        .then(() => {
+          // Actualizar la lista de facturas después de eliminar
+          setFacturas((prev) => prev.filter((factura) => factura.id !== id));
+        })
+        .catch((error) => console.error("Error eliminando factura:", error));
+    }
+  };
+
   return (
     <div className="container mt-5">
       <h1 className="text-center mb-4">Gestión de Facturas</h1>
+
+      {/* Botón para agregar factura */}
+      <div className="mb-4 text-end">
+        <button
+          className="btn btn-success"
+          onClick={() => navigate("/empresa/facturas/agregar")}
+        >
+          Agregar Factura
+        </button>
+      </div>
 
       {/* Filtros */}
       <div className="card p-4 shadow-sm mb-4">
@@ -127,6 +156,7 @@ const Facturas = () => {
               <th>Fecha de Vencimiento</th>
               <th>Monto Total</th>
               <th>Estado</th>
+              <th>Acciones</th>
             </tr>
           </thead>
 
@@ -145,11 +175,33 @@ const Facturas = () => {
                     (proveedor) => proveedor.id === factura.proveedor
                   )?.nombre || "N/A"}
                 </td>
-                <td>{factura.fecha_emision}</td>
-                <td>{factura.fecha_vencimiento}</td>
-                <td>S/. {Number(factura.monto_total).toFixed(2)}</td>{" "}
-                {/* Conversión aquí */}
+                <td>
+                  {new Date(factura.fecha_emision).toLocaleDateString("es-PE")}
+                </td>
+                <td>
+                  {new Date(factura.fecha_vencimiento).toLocaleDateString(
+                    "es-PE"
+                  )}
+                </td>
+
+                <td>S/. {Number(factura.monto_total).toFixed(2)}</td>
                 <td>{factura.estado}</td>
+                <td>
+                  <button
+                    className="btn btn-warning btn-sm me-2"
+                    onClick={() =>
+                      navigate(`/empresa/facturas/editar/${factura.id}`)
+                    }
+                  >
+                    Editar
+                  </button>
+                  <button
+                    className="btn btn-danger btn-sm"
+                    onClick={() => handleDelete(factura.id)}
+                  >
+                    Eliminar
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>

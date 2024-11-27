@@ -23,6 +23,11 @@ import EditarCliente from "./pages/EMPRESA/EditarCliente";
 import AgregarProveedor from "./pages/EMPRESA/AgregarProveedor";
 import EditarProveedor from "./pages/EMPRESA/EditarProveedor";
 
+import AgregarFactura from "./pages/EMPRESA/AgregarFactura";
+import EditarFactura from "./pages/EMPRESA/EditarFactura";
+
+import Dashboard from "./pages/EMPRESA/Dashboard";
+
 const AppContent = ({ isAuthenticated, setIsAuthenticated }) => {
   const location = useLocation(); // Mover aquí el useLocation para usarlo en el contexto correcto
 
@@ -108,7 +113,32 @@ const AppContent = ({ isAuthenticated, setIsAuthenticated }) => {
             </PrivateRoute>
           }
         />
-        
+
+        <Route
+          path="/empresa/facturas/agregar"
+          element={
+            <PrivateRoute>
+              <AgregarFactura />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/empresa/facturas/editar/:facturaId"
+          element={
+            <PrivateRoute>
+              <EditarFactura />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/empresa/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </div>
   );

@@ -36,6 +36,11 @@ const Navbar = ({ handleLogout }) => {
                 Facturas
               </Link>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/empresa/dashboard">
+                Dashboard
+              </Link>
+            </li>
           </ul>
           <button
             className="btn btn-danger ms-auto"
