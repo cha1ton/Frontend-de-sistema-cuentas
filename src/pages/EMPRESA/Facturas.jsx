@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import * as XLSX from "xlsx"; // Importar la librería xlsx
+import { jsPDF } from "jspdf";
+import "jspdf-autotable"; // Importar el complemento autoTable
 
 const Facturas = () => {
   const [facturas, setFacturas] = useState([]);
@@ -11,7 +13,6 @@ const Facturas = () => {
     proveedor: "",
     estado: "",
   });
-  const navigate = useNavigate(); // Hook para redirigir
 
   // Fetch de facturas, clientes y proveedores
   useEffect(() => {
@@ -42,6 +43,65 @@ const Facturas = () => {
     fetchData();
   }, []);
 
+  // Exportar datos a Excel
+  const exportToExcel = () => {
+    const data = facturas.map((factura) => {
+      const cliente = clientes.find((cli) => cli.id === factura.cliente)?.nombre || "N/A";
+      const proveedor = proveedores.find((prov) => prov.id === factura.proveedor)?.nombre || "N/A";
+      return {
+        "Número de Factura": factura.numero_factura,
+        Tipo: factura.tipo,
+        Cliente: cliente,
+        Proveedor: proveedor,
+        "Fecha de Emisión": factura.fecha_emision,
+        "Fecha de Vencimiento": factura.fecha_vencimiento,
+        "Monto Total": `S/. ${Number(factura.monto_total).toFixed(2)}`,
+        Estado: factura.estado,
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Facturas");
+
+    XLSX.writeFile(wb, "facturas.xlsx");
+  };
+
+  // Exportar datos a PDF usando jsPDF y autoTable
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text("Facturas", 14, 20);  // Título en PDF
+
+    // Crear la tabla en el PDF con autoTable
+    const headers = ["#", "Número de Factura", "Tipo", "Cliente", "Proveedor", "Fecha de Emisión", "Fecha de Vencimiento", "Monto Total", "Estado"];
+    const rows = facturas.map((factura, index) => {
+      const cliente = clientes.find((cli) => cli.id === factura.cliente)?.nombre || "N/A";
+      const proveedor = proveedores.find((prov) => prov.id === factura.proveedor)?.nombre || "N/A";
+      return [
+        index + 1,
+        factura.numero_factura,
+        factura.tipo,
+        cliente,
+        proveedor,
+        factura.fecha_emision,
+        factura.fecha_vencimiento,
+        `S/. ${Number(factura.monto_total).toFixed(2)}`,
+        factura.estado,
+      ];
+    });
+
+    // Usar autoTable para crear la tabla en el PDF
+    doc.autoTable({
+      head: [headers],
+      body: rows,
+      startY: 30, // Empieza la tabla debajo del título
+    });
+
+    // Guardar el archivo PDF
+    doc.save("facturas.pdf");
+  };
+
   // Manejar el cambio en los filtros
   const handleFiltroChange = (e) => {
     const { name, value } = e.target;
@@ -57,36 +117,9 @@ const Facturas = () => {
     );
   });
 
-  // Eliminar factura
-  const handleDelete = (id) => {
-    if (window.confirm("¿Estás seguro de que deseas eliminar esta factura?")) {
-      axios
-        .delete(`http://127.0.0.1:8000/api/facturas/${id}/`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        })
-        .then(() => {
-          // Actualizar la lista de facturas después de eliminar
-          setFacturas((prev) => prev.filter((factura) => factura.id !== id));
-        })
-        .catch((error) => console.error("Error eliminando factura:", error));
-    }
-  };
-
   return (
     <div className="container mt-5">
       <h1 className="text-center mb-4">Gestión de Facturas</h1>
-
-      {/* Botón para agregar factura */}
-      <div className="mb-4 text-end">
-        <button
-          className="btn btn-success"
-          onClick={() => navigate("/empresa/facturas/agregar")}
-        >
-          Agregar Factura
-        </button>
-      </div>
 
       {/* Filtros */}
       <div className="card p-4 shadow-sm mb-4">
@@ -141,6 +174,16 @@ const Facturas = () => {
         </div>
       </div>
 
+      {/* Botones para exportar */}
+      <div className="mb-4">
+        <button className="btn btn-success" onClick={exportToExcel}>
+          Exportar a Excel
+        </button>
+        <button className="btn btn-primary ms-3" onClick={exportToPDF}>
+          Exportar a PDF
+        </button>
+      </div>
+
       {/* Lista de Facturas */}
       <h4 className="mb-3">Lista de Facturas</h4>
       <div className="table-responsive">
@@ -156,7 +199,6 @@ const Facturas = () => {
               <th>Fecha de Vencimiento</th>
               <th>Monto Total</th>
               <th>Estado</th>
-              <th>Acciones</th>
             </tr>
           </thead>
 
@@ -175,33 +217,10 @@ const Facturas = () => {
                     (proveedor) => proveedor.id === factura.proveedor
                   )?.nombre || "N/A"}
                 </td>
-                <td>
-                  {new Date(factura.fecha_emision).toLocaleDateString("es-PE")}
-                </td>
-                <td>
-                  {new Date(factura.fecha_vencimiento).toLocaleDateString(
-                    "es-PE"
-                  )}
-                </td>
-
+                <td>{factura.fecha_emision}</td>
+                <td>{factura.fecha_vencimiento}</td>
                 <td>S/. {Number(factura.monto_total).toFixed(2)}</td>
                 <td>{factura.estado}</td>
-                <td>
-                  <button
-                    className="btn btn-warning btn-sm me-2"
-                    onClick={() =>
-                      navigate(`/empresa/facturas/editar/${factura.id}`)
-                    }
-                  >
-                    Editar
-                  </button>
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => handleDelete(factura.id)}
-                  >
-                    Eliminar
-                  </button>
-                </td>
               </tr>
             ))}
           </tbody>

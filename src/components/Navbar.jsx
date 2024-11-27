@@ -40,47 +40,129 @@ const Navbar = ({ handleLogout }) => {
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            <li className="nav-item">
-              <button
-                className="btn btn-link nav-link"
-                onClick={() => navigate("/empresa/clientes")}
-              >
-                Clientes
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                className="btn btn-link nav-link"
-                onClick={() => navigate("/empresa/proveedores")}
-              >
-                Proveedores
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                className="btn btn-link nav-link"
-                onClick={() => navigate("/empresa/facturas")}
-              >
-                Facturas
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                className="btn btn-link nav-link"
-                onClick={() => navigate("/empresa/usuarios")}
-              >
-                Usuarios
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                className="btn btn-link nav-link"
-                onClick={() => navigate("/empresa/dashboard")}
-              >
-                Dashboard
-              </button>
-            </li>
+            {/* Administrador */}
+            {usuario?.rol === "Administrador" && (
+              <>
+                <li className="nav-item">
+                  <button
+                    className="btn btn-link nav-link"
+                    onClick={() => navigate("/empresa/clientes")}
+                  >
+                    Clientes
+                  </button>
+                </li>
+                <li className="nav-item">
+                  <button
+                    className="btn btn-link nav-link"
+                    onClick={() => navigate("/empresa/proveedores")}
+                  >
+                    Proveedores
+                  </button>
+                </li>
+                <li className="nav-item">
+                  <button
+                    className="btn btn-link nav-link"
+                    onClick={() => navigate("/empresa/facturas")}
+                  >
+                    Facturas
+                  </button>
+                </li>
+                <li className="nav-item">
+                  <button
+                    className="btn btn-link nav-link"
+                    onClick={() => navigate("/empresa/usuarios")}
+                  >
+                    Usuarios
+                  </button>
+                </li>
+                <li className="nav-item">
+                  <button
+                    className="btn btn-link nav-link"
+                    onClick={() => navigate("/empresa/dashboard")}
+                  >
+                    Dashboard
+                  </button>
+                </li>
+                <li className="nav-item">
+                  <button
+                    className="btn btn-link nav-link"
+                    onClick={() => navigate("/empresa/importar-exportar")}
+                  >
+                    Importar/Exportar
+                  </button>
+                </li>
+              </>
+            )}
+
+            {/* Contador */}
+            {usuario?.rol === "Contador" && (
+              <>
+                <li className="nav-item">
+                  <button
+                    className="btn btn-link nav-link"
+                    onClick={() => navigate("/empresa/clientes")}
+                  >
+                    Clientes
+                  </button>
+                </li>
+                <li className="nav-item">
+                  <button
+                    className="btn btn-link nav-link"
+                    onClick={() => navigate("/empresa/facturas")}
+                  >
+                    Facturas
+                  </button>
+                </li>
+                <li className="nav-item">
+                  <button
+                    className="btn btn-link nav-link"
+                    onClick={() => navigate("/empresa/dashboard")}
+                  >
+                    Dashboard
+                  </button>
+                </li>
+                <li className="nav-item">
+                  <button
+                    className="btn btn-link nav-link"
+                    onClick={() => navigate("/empresa/importar-exportar")}
+                  >
+                    Importar/Exportar
+                  </button>
+                </li>
+              </>
+            )}
+
+            {/* Gerente */}
+            {usuario?.rol === "Gerente" && (
+              <>
+                <li className="nav-item">
+                  <button
+                    className="btn btn-link nav-link"
+                    onClick={() => navigate("/empresa/proveedores")}
+                  >
+                    Proveedores
+                  </button>
+                </li>
+                <li className="nav-item">
+                  <button
+                    className="btn btn-link nav-link"
+                    onClick={() => navigate("/empresa/dashboard")}
+                  >
+                    Dashboard
+                  </button>
+                </li>
+                <li className="nav-item">
+                  <button
+                    className="btn btn-link nav-link"
+                    onClick={() => navigate("/empresa/importar-exportar")}
+                  >
+                    Importar/Exportar
+                  </button>
+                </li>
+              </>
+            )}
           </ul>
+
           <span className="navbar-text me-3">
             {usuario ? `Hola, ${usuario.username}` : "Cargando..."}
           </span>

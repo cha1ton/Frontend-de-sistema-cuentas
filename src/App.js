@@ -16,6 +16,7 @@ import Facturas from "./pages/EMPRESA/Facturas";
 
 // COMPONENTES
 import Navbar from "./components/Navbar";
+import AccesoDenegado from "./components/AccesoDenegado";
 
 import AgregarCliente from "./pages/EMPRESA/AgregarCliente";
 import EditarCliente from "./pages/EMPRESA/EditarCliente";
@@ -32,8 +33,22 @@ import RegistrarUsuario from "./pages/EMPRESA/RegistrarUsuario";
 import ListaUsuarios from "./pages/EMPRESA/ListaUsuarios";
 import EditarUsuario from "./pages/EMPRESA/EditarUsuario";
 
+import ImportarExportar from "./pages/EMPRESA/ImportarExportar";
+
+// Componente para verificar roles
+const RequireRole = ({ allowedRoles, children }) => {
+  const token = localStorage.getItem("accessToken");
+  const userRole = token ? JSON.parse(atob(token.split(".")[1])).rol : null;
+
+  if (!token || !allowedRoles.includes(userRole)) {
+    return <AccesoDenegado />;
+  }
+
+  return children;
+};
+
 const AppContent = ({ isAuthenticated, setIsAuthenticated }) => {
-  const location = useLocation(); // Mover aquí el useLocation para usarlo en el contexto correcto
+  const location = useLocation();
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
@@ -41,13 +56,9 @@ const AppContent = ({ isAuthenticated, setIsAuthenticated }) => {
     setIsAuthenticated(false);
   };
 
-  const PrivateRoute = ({ children }) => {
-    return isAuthenticated ? children : <Navigate to="/" />;
-  };
-
   return (
     <div>
-      {/* Mostrar el Navbar solo si el usuario está autenticado y no está en el login */}
+      {/* Mostrar el Navbar solo si el usuario está autenticado */}
       {isAuthenticated && location.pathname !== "/" && (
         <Navbar handleLogout={handleLogout} />
       )}
@@ -63,108 +74,111 @@ const AppContent = ({ isAuthenticated, setIsAuthenticated }) => {
         <Route
           path="/empresa/clientes"
           element={
-            <PrivateRoute>
+            <RequireRole allowedRoles={["Administrador", "Contador"]}>
               <Clientes />
-            </PrivateRoute>
+            </RequireRole>
           }
         />
         <Route
           path="/empresa/proveedores"
           element={
-            <PrivateRoute>
+            <RequireRole allowedRoles={["Administrador", "Gerente"]}>
               <Proveedores />
-            </PrivateRoute>
+            </RequireRole>
           }
         />
         <Route
           path="/empresa/facturas"
           element={
-            <PrivateRoute>
+            <RequireRole allowedRoles={["Administrador", "Contador"]}>
               <Facturas />
-            </PrivateRoute>
+            </RequireRole>
           }
         />
         <Route
           path="/empresa/clientes/agregar"
           element={
-            <PrivateRoute>
+            <RequireRole allowedRoles={["Administrador"]}>
               <AgregarCliente />
-            </PrivateRoute>
+            </RequireRole>
           }
         />
         <Route
           path="/empresa/clientes/editar/:clienteId"
           element={
-            <PrivateRoute>
+            <RequireRole allowedRoles={["Administrador"]}>
               <EditarCliente />
-            </PrivateRoute>
+            </RequireRole>
           }
         />
-
         <Route
           path="/empresa/proveedores/agregar"
           element={
-            <PrivateRoute>
+            <RequireRole allowedRoles={["Administrador"]}>
               <AgregarProveedor />
-            </PrivateRoute>
+            </RequireRole>
           }
         />
         <Route
           path="/empresa/proveedores/editar/:proveedorId"
           element={
-            <PrivateRoute>
+            <RequireRole allowedRoles={["Administrador"]}>
               <EditarProveedor />
-            </PrivateRoute>
+            </RequireRole>
           }
         />
-
         <Route
           path="/empresa/facturas/agregar"
           element={
-            <PrivateRoute>
+            <RequireRole allowedRoles={["Administrador"]}>
               <AgregarFactura />
-            </PrivateRoute>
+            </RequireRole>
           }
         />
         <Route
           path="/empresa/facturas/editar/:facturaId"
           element={
-            <PrivateRoute>
+            <RequireRole allowedRoles={["Administrador"]}>
               <EditarFactura />
-            </PrivateRoute>
+            </RequireRole>
           }
         />
-
         <Route
           path="/empresa/dashboard"
           element={
-            <PrivateRoute>
+            <RequireRole allowedRoles={["Administrador", "Gerente"]}>
               <Dashboard />
-            </PrivateRoute>
+            </RequireRole>
           }
         />
-
         <Route
           path="/empresa/registrar-usuario"
           element={
-            <PrivateRoute>
+            <RequireRole allowedRoles={["Administrador"]}>
               <RegistrarUsuario />
-            </PrivateRoute>
+            </RequireRole>
           }
         />
-
         <Route
           path="/empresa/usuarios"
           element={
-            <PrivateRoute>
+            <RequireRole allowedRoles={["Administrador"]}>
               <ListaUsuarios />
-            </PrivateRoute>
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/empresa/usuarios/editar/:usuarioId"
+          element={
+            <RequireRole allowedRoles={["Administrador"]}>
+              <EditarUsuario />
+            </RequireRole>
           }
         />
 
         <Route
-          path="/empresa/usuarios/editar/:usuarioId"
-          element={<EditarUsuario />}
+          path="/empresa/importar-exportar"
+          element={<ImportarExportar />}
         />
       </Routes>
     </div>
