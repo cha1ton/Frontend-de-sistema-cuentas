@@ -1,7 +1,26 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Navbar = ({ handleLogout }) => {
+  const [usuario, setUsuario] = useState(null); // Estado para almacenar el usuario
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUsuario = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        const response = await axios.get("http://127.0.0.1:8000/api/usuario/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUsuario(response.data);
+      } catch (error) {
+        console.error("Error al obtener el usuario:", error);
+      }
+    };
+    fetchUsuario();
+  }, []);
+
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container-fluid">
@@ -20,32 +39,52 @@ const Navbar = ({ handleLogout }) => {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav">
+          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
-              <Link className="nav-link" to="/empresa/clientes">
+              <button
+                className="btn btn-link nav-link"
+                onClick={() => navigate("/empresa/clientes")}
+              >
                 Clientes
-              </Link>
+              </button>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/empresa/proveedores">
+              <button
+                className="btn btn-link nav-link"
+                onClick={() => navigate("/empresa/proveedores")}
+              >
                 Proveedores
-              </Link>
+              </button>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/empresa/facturas">
+              <button
+                className="btn btn-link nav-link"
+                onClick={() => navigate("/empresa/facturas")}
+              >
                 Facturas
-              </Link>
+              </button>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/empresa/dashboard">
+              <button
+                className="btn btn-link nav-link"
+                onClick={() => navigate("/empresa/usuarios")}
+              >
+                Usuarios
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                className="btn btn-link nav-link"
+                onClick={() => navigate("/empresa/dashboard")}
+              >
                 Dashboard
-              </Link>
+              </button>
             </li>
           </ul>
-          <button
-            className="btn btn-danger ms-auto"
-            onClick={handleLogout}
-          >
+          <span className="navbar-text me-3">
+            {usuario ? `Hola, ${usuario.username}` : "Cargando..."}
+          </span>
+          <button className="btn btn-danger" onClick={handleLogout}>
             Cerrar Sesión
           </button>
         </div>

@@ -27,6 +27,10 @@ import AgregarFactura from "./pages/EMPRESA/AgregarFactura";
 import EditarFactura from "./pages/EMPRESA/EditarFactura";
 
 import Dashboard from "./pages/EMPRESA/Dashboard";
+import RegistrarUsuario from "./pages/EMPRESA/RegistrarUsuario";
+
+import ListaUsuarios from "./pages/EMPRESA/ListaUsuarios";
+import EditarUsuario from "./pages/EMPRESA/EditarUsuario";
 
 const AppContent = ({ isAuthenticated, setIsAuthenticated }) => {
   const location = useLocation(); // Mover aquí el useLocation para usarlo en el contexto correcto
@@ -138,6 +142,29 @@ const AppContent = ({ isAuthenticated, setIsAuthenticated }) => {
               <Dashboard />
             </PrivateRoute>
           }
+        />
+
+        <Route
+          path="/empresa/registrar-usuario"
+          element={
+            <PrivateRoute>
+              <RegistrarUsuario />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/empresa/usuarios"
+          element={
+            <PrivateRoute>
+              <ListaUsuarios />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/empresa/usuarios/editar/:usuarioId"
+          element={<EditarUsuario />}
         />
       </Routes>
     </div>
